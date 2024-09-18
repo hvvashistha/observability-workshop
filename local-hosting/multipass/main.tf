@@ -33,6 +33,18 @@ variable "splunk_realm" {
   default     = ""
 }
 
+variable "splunk_ingest_url" {
+  description = "Splunk Ingest URL for Observability data"
+  type        = string
+  nullable    = true
+}
+
+variable "splunk_api_url" {
+  description = "Splunk API URL for Observabiltiy APIs"
+  type        = string
+  nullable    = true
+}
+
 variable "splunk_hec_token" {
   description = "Splunk Cloud HEC Token"
   type        = string
@@ -43,6 +55,13 @@ variable "splunk_hec_url" {
   description = "Splunk Cloud HEC URL"
   type        = string
   nullable    = false
+}
+
+variable "splunk_index" {
+  description = "Splunk Enterprise/Cloud index to send logs to"
+  type        = string
+  nullable    = false
+  default     = "splunk4rookies-workshop"
 }
 
 variable "splunk_presetup" {
@@ -102,19 +121,22 @@ resource "random_string" "hostname" {
 locals {
   template_vars = {
     access_token      = var.splunk_access_token
-    rum_token         = var.splunk_rum_token
     api_token         = var.splunk_api_token
-    realm             = var.splunk_realm
+    api_url           = try(var.splunk_api_url, "https://api.${var.splunk_realm}.signalfx.com")
+    diab              = var.splunk_diab
     hec_token         = var.splunk_hec_token
     hec_url           = var.splunk_hec_url
-    presetup          = var.splunk_presetup
-    otel_demo         = var.otel_demo
-    tagging_workshop  = var.tagging_workshop
-    diab              = var.splunk_diab
+    ingest_url        = try(var.splunk_ingest_url, "https://ingest.${var.splunk_realm}.signalfx.com")
     instance_name     = "${random_string.hostname.result}"
-    wsversion         = var.wsversion
     instance_password = var.instance_password
+    otel_demo         = var.otel_demo
+    presetup          = var.splunk_presetup
     pub_key           = var.pub_key
+    realm             = var.splunk_realm
+    rum_token         = var.splunk_rum_token
+    splunk_index      = var.splunk_index
+    tagging_workshop  = var.tagging_workshop
+    wsversion         = var.wsversion
   }
 }
 
